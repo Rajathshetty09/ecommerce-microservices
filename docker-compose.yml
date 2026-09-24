@@ -124,7 +124,7 @@ services:
     volumes:
       - ./docker/keycloak/import:/opt/keycloak/data/import:ro
     ports:
-      - "8087:8080"
+      - "8082:8080"  # FIXED: Host port updated from 8087 to 8082
     depends_on:
       postgres:
         condition: service_healthy
@@ -260,7 +260,7 @@ services:
     pull_policy: always
     container_name: inventory-service
     ports:
-      - "8082:8082"
+      - "8092:8082"  # Host port mapped to 8092 to prevent conflicts
     environment:
       JWT_ISSUER_URI: http://keycloak:8080/realms/ecommerce
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/inventoryservice
@@ -428,6 +428,7 @@ services:
 networks:
   ecommerce-network:
     driver: bridge
+
 volumes:
   postgres_data:
   redis_data:
