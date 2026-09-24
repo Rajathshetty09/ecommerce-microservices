@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        PROJECT_DIR = '.'
-    }
-
     stages {
         stage('Checkout Source Code') {
             steps {
@@ -12,23 +8,20 @@ pipeline {
             }
         }
 
-        stage('Build Java Artifacts') {
-            steps {
-                sh 'chmod +x mvnw && ./mvnw clean package -DskipTests'
-            }
-        }
-
         stage('Build & Spin Up Containers') {
             steps {
+                // Stop existing running containers if any
                 sh 'docker compose down || true'
-                sh 'docker compose build'
-                sh 'docker compose up -d'
+                
+                // Build and start all microservice containers directly
+                sh 'docker compose up -d --build'
             }
         }
     }
 
     post {
         always {
+            // Clean up unused images to save disk space
             sh 'docker image prune -f'
         }
     }
