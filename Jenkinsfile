@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        COMPOSE_PROJECT_NAME = 'ecommerce-app'
+    }
+
     stages {
         stage('Checkout Source Code') {
             steps {
@@ -10,18 +14,17 @@ pipeline {
 
         stage('Build & Spin Up Containers') {
             steps {
-                // Stop existing running containers if any
-                sh 'docker compose down || true'
+                // Remove existing project containers and any orphans blocking container names
+                sh 'docker compose --project-name ${COMPOSE_PROJECT_NAME} down --remove-orphans || true'
                 
-                // Build and start all microservice containers directly
-                sh 'docker compose up -d --build'
+                // Spin up all microservices and infra containers cleanly
+                sh 'docker compose --project-name ${COMPOSE_PROJECT_NAME} up -d --build'
             }
         }
     }
 
     post {
         always {
-            // Clean up unused images to save disk space
             sh 'docker image prune -f'
         }
     }
